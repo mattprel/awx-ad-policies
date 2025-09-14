@@ -1,0 +1,9 @@
+version: 1
+dependencies:
+  python:
+    - -r requirements.txt
+  system:
+    - -r bindep.txt
+collections:
+  - name: microsoft.ad
+  - name: community.general
