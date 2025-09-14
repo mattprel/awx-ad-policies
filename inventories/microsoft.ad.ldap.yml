@@ -1,0 +1,31 @@
+plugin: microsoft.ad.ldap
+# AD server connection — replace with your AD server(s)
+server_uri: "{{ lookup('env','MICROSOFT_AD_LDAP_SERVER') }}"          # use ldaps or start_tls for security
+search_base: "{{ lookup('env','MICROSOFT_AD_LDAP_BASE') }}"                # change to your search base
+# authentication: we'll read username/password from environment variables
+username: "{{ lookup('env','MICROSOFT_AD_LDAP_USERNAME') }}"
+password: "{{ lookup('env','MICROSOFT_AD_LDAP_PASSWORD') }}"
+tls_mode: ldaps
+
+# attributes to pull and host facts to set
+attributes:
+  dNSHostName:
+  distinguishedName:
+
+# compose: create a host var 'ou_path' from the distinguishedName by extracting OU components
+compose:
+  ou_path: "{{ microsoft_ad_distinguished_name
+                | default('') 
+                | microsoft.ad.parse_dn
+                | selectattr('type','equalto','OU')
+                | map(attribute='value')
+                | list
+                | join('_') }}"
+# keyed_groups: one group per OU path, prefix "ou_"
+keyed_groups:
+  - key: ou_path
+    prefix: "ou_"
+    separator: "_"
+
+# optional: limit which computer objects to return (default adds objectCategory=computer)
+filter: "(objectCategory=computer)"
