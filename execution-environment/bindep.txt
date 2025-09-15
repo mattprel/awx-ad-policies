@@ -1,5 +1,13 @@
-libldap2-dev
-libsasl2-dev
-libssl-dev
-python3-dev
-build-essential
+# Build tools
+gcc
+gcc-c++
+make
+python3-devel
+
+# LDAP / Kerberos
+openldap-devel
+cyrus-sasl-devel
+krb5-devel
+
+# SSL
+openssl-devel
