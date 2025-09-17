@@ -1,0 +1,16 @@
+# Build tools
+gcc
+gcc-c++
+make
+python3-devel
+
+# LDAP / Kerberos
+openldap-devel
+cyrus-sasl-devel
+krb5-devel
+
+# SSL
+openssl-devel
+
+# SSH
+sshpass

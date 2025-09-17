@@ -1,0 +1,19 @@
+---
+- name: Apply computer policies (by OU groups)
+  hosts: clients
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: set /etc/motd on workstations
+      when: "'clients_personal' in group_names"
+      become_user: root
+      ansible.builtin.copy:
+        dest: /etc/motd
+        content: |
+          AWX managed policy applied to {{ inventory_hostname }}
+          Group(s): {{ group_names }}
+        owner: root
+        group: root
+        mode: '0644'
+        unsafe_writes: true
