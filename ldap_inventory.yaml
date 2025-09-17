@@ -1,0 +1,5 @@
+---
+plugin: ldap_inventory
+ldap_filter: "(&(objectClass=computer)(operatingSystem=pc-linux-gnu))"
+domain: 'ad.everxwebsolutions.co.uk'
+auth_type: simple
