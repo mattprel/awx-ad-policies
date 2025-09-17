@@ -11,3 +11,6 @@ krb5-devel
 
 # SSL
 openssl-devel
+
+# SSH
+sshpass
