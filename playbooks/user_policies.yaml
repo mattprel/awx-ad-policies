@@ -1,0 +1,34 @@
+- name: Apply user policies
+  hosts: all
+  become: true
+  vars:
+    personal_users_ou: "OU=Personal,OU=Users,DC=ad,DC=everxwebsolutions,DC=co,DC=uk"
+  tasks:
+    - name: Query AD for users in Personal OU
+      community.general.ldap_search:
+        dn: "{{ personal_users_ou }}"
+        filter: "(objectClass=user)"
+        attrs:
+          - sAMAccountName
+      register: personal_users
+
+    - name: Debug LDAP search (first 2 entries)
+      debug:
+        var: personal_users.entries[0:2]
+
+    - name: Set MotD for users in Personal OU
+      block:
+        - name: set /etc/motd on workstations
+          become_user: root
+          ansible.builtin.copy:
+            dest: /tmp/testmotd.txt
+            content: |
+              AWX managed USER policy applied to {{ personal_users[0] }}
+            owner: root
+            group: root
+            mode: '0644'
+            unsafe_writes: true
+      loop: "{{ personal_users.entries }}"
+      loop_control:
+        label: "{{ item.attributes.sAMAccountName[0] | default('unknown') }}"
+      ignore_errors: true
