@@ -1,12 +1,12 @@
-- name: check if / is read-only
-  hosts: clients
+- name: set /etc/motd on workstations
   become: true
-  gather_facts: false
-
-  tasks:
-    - name: check root mount options
-      ansible.builtin.command: findmnt -no OPTIONS /
-      register: mount_opts
-
-    - debug:
-        var: mount_opts.stdout
+  become_user: root
+  ansible.builtin.copy:
+    dest: /etc/motd
+    content: |
+      AWX managed policy applied to {{ inventory_hostname }}
+      Group(s): {{ group_names }}
+    owner: root
+    group: root
+    mode: '0644'
+    unsafe_writes: true
