@@ -16,3 +16,32 @@ Line changed to:
     if not ouGroups:
       display.debug("DEBUG: No OU groups detected for %s, skipping" % hostName)
       continue
+
+
+### [ldap_inventory.py](https://github.com/mattprel/awx-ad-policies/tree/main/plugins/inventory/ldap_inventory.py)
+
+#### Modification 2 - Bug fix to ensure that calculated FQDNs are NETBIOS compatible.
+Line changed:
+
+    if self.use_fqdn is True :
+        domainName = "." + item[0].split('DC=',1)[1].replace(',DC=','.')
+        hostName = hostName + domainName.lower()
+
+Line changed to: 
+
+    def to_netbios_name(name: str) -> str:
+        """
+        Convert a hostname to NetBIOS-compatible form:
+        - Allow only alphanumeric and hyphen
+        - Truncate to 15 chars (NetBIOS limit)
+        - Lowercase for DNS
+        """
+        # Replace invalid chars with nothing
+        cleaned = re.sub(r'[^A-Za-z0-9-]', '', name)
+        # Truncate to 15 chars
+        shortened = cleaned[:15]
+        return shortened.lower()
+               
+    if self.use_fqdn is True:
+        domainName = "." + item[0].split('DC=', 1)[1].replace(',DC=', '.')
+        hostName = to_netbios_name(hostName) + domainName.lower()
