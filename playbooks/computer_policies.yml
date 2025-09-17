@@ -9,12 +9,12 @@
       register: id_out
 
     - name: print whoami
-      ansible.builtin.shell: whoami && echo "BEcome user: $SUDO_USER"
+      ansible.builtin.shell: whoami && echo "BEcome user $SUDO_USER"
       register: whoami_out
       ignore_errors: yes
 
     - name: stat /etc and /etc/motd
-      ansible.builtin.command: stat -c "%n: mode=%A uid=%u gid=%g" /etc /etc/motd
+      ansible.builtin.command: stat -c "%n mode=%A uid=%u gid=%g" /etc /etc/motd
       register: stat_out
       ignore_errors: yes
 
