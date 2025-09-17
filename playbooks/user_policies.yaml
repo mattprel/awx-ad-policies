@@ -13,10 +13,16 @@
         server_uri: "{{ lookup('env', 'ldap_server_uri') }}"
         bind_dn:   "{{ lookup('env', 'ldap_bind_dn') }}"
         bind_pw:   "{{ lookup('env', 'ldap_bind_password') }}"
-      register: personal_users
+      register: ldap_result
       delegate_to: localhost
       run_once: true
       become: false
+
+    - name: Save LDAP result as a fact for all hosts
+      set_fact:
+        personal_users: "{{ ldap_result }}"
+      run_once: true
+      delegate_to: localhost
 
     - name: Debug LDAP search (first 2 entries)
       debug:
