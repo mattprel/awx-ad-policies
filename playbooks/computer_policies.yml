@@ -1,12 +1,13 @@
-- name: set /etc/motd on workstations
-  become: true
-  become_user: root
-  ansible.builtin.copy:
-    dest: /etc/motd
-    content: |
-      AWX managed policy applied to {{ inventory_hostname }}
-      Group(s): {{ group_names }}
-    owner: root
-    group: root
-    mode: '0644'
-    unsafe_writes: true
+tasks:
+  - name: set /etc/motd on workstations
+    become: true
+    become_user: root
+    ansible.builtin.copy:
+      dest: /etc/motd
+      content: |
+        AWX managed policy applied to {{ inventory_hostname }}
+        Group(s): {{ group_names }}
+      owner: root
+      group: root
+      mode: '0644'
+      unsafe_writes: true
