@@ -16,19 +16,17 @@
       debug:
         var: personal_users.entries[0:2]
 
-    - name: Set MotD for users in Personal OU
-      block:
-        - name: set /etc/motd on workstations
-          become_user: root
-          ansible.builtin.copy:
-            dest: /tmp/testmotd.txt
-            content: |
-              AWX managed USER policy applied to {{ personal_users[0] }}
-            owner: root
-            group: root
-            mode: '0644'
-            unsafe_writes: true
-      loop: "{{ personal_users.entries }}"
-      loop_control:
-        label: "{{ item.attributes.sAMAccountName[0] | default('unknown') }}"
-      ignore_errors: true
+    - name: set /etc/motd on workstations
+        become_user: root
+        ansible.builtin.copy:
+          dest: /tmp/testmotd.txt
+          content: |
+            AWX managed USER policy applied to {{ personal_users[0] }}
+          owner: root
+          group: root
+          mode: '0644'
+          unsafe_writes: true
+        loop: "{{ personal_users.entries }}"
+        loop_control:
+          label: "{{ item.attributes.sAMAccountName[0] | default('unknown') }}"
+        ignore_errors: true
