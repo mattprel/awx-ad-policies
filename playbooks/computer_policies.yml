@@ -4,7 +4,7 @@
   gather_facts: true
 
   tasks:
-    - name: Test: set /etc/motd on workstations
+    - name: set /etc/motd on workstations
       when: "'clients_personal' in group_names"
       ansible.builtin.copy:
         dest: /etc/motd
