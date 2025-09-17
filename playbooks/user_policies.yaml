@@ -21,18 +21,22 @@
     - name: Debug LDAP search (first 2 entries)
       debug:
         var: personal_users.entries[0:2]
+      delegate_to: localhost
+      run_once: true
+      become: false
 
-    - name: set /etc/motd on workstations
-      become_user: root
+
+    - name: Set /tmp/testmotd.txt on workstations
       ansible.builtin.copy:
-        dest: /tmp/testmotd.txt
+        dest: "/tmp/testmotd_{{ item.attributes.sAMAccountName[0] | default('unknown') }}.txt"
         content: |
-          AWX managed USER policy applied to {{ personal_users[0] }}
+          AWX managed USER policy applied to {{ item.attributes.sAMAccountName[0] | default('unknown') }}
         owner: root
         group: root
         mode: '0644'
         unsafe_writes: true
-      loop: "{{ personal_users.entries }}"
+      loop: "{{ personal_users.entries | default([]) }}"
       loop_control:
         label: "{{ item.attributes.sAMAccountName[0] | default('unknown') }}"
       ignore_errors: true
+
