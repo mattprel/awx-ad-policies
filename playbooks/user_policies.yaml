@@ -3,6 +3,7 @@
   become: true
   vars:
     personal_users_ou: "OU=Personal,OU=Users,DC=ad,DC=everxwebsolutions,DC=co,DC=uk"
+
   tasks:
     - name: Query AD for users in Personal OU
       community.general.ldap_search:
@@ -11,36 +12,30 @@
         attrs:
           - sAMAccountName
         server_uri: "{{ lookup('env', 'ldap_server_uri') }}"
-        bind_dn:   "{{ lookup('env', 'ldap_bind_dn') }}"
-        bind_pw:   "{{ lookup('env', 'ldap_bind_password') }}"
+        bind_dn: "{{ lookup('env', 'ldap_bind_dn') }}"
+        bind_pw: "{{ lookup('env', 'ldap_bind_password') }}"
       register: ldap_result
       delegate_to: localhost
       run_once: true
       become: false
 
-    - name: Save LDAP result as a fact for all hosts
-      set_fact:
-        personal_users: "{{ ldap_result }}"
-      run_once: true
-
     - name: Debug LDAP search (first 2 entries)
       debug:
-        var: personal_users.entries[0:2]
+        var: ldap_result.entries[0:2]
+      delegate_to: localhost
       run_once: true
       become: false
-
 
     - name: Set /tmp/testmotd.txt on workstations
       ansible.builtin.copy:
         dest: "/tmp/testmotd_{{ item.attributes.sAMAccountName[0] | default('unknown') }}.txt"
-        content: |
-          AWX managed USER policy applied to {{ item.attributes.sAMAccountName[0] | default('unknown') }}
+        content: "AWX managed USER policy applied to {{ item.attributes.sAMAccountName[0] | default('unknown') }}"
         owner: root
         group: root
         mode: '0644'
         unsafe_writes: true
-      loop: "{{ personal_users.entries | default([]) }}"
+      loop: "{{ ldap_result.entries | default([]) }}"
       loop_control:
         label: "{{ item.attributes.sAMAccountName[0] | default('unknown') }}"
       ignore_errors: true
-
+      delegate_to: "{{ inventory_hostname }}"
