@@ -13,6 +13,7 @@
       register: personal_users
       delegate_to: localhost
       run_once: true
+      become: false
 
     - name: Debug LDAP search (first 2 entries)
       debug:
