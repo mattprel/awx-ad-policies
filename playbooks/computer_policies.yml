@@ -1,16 +1,54 @@
-- name: Apply computer policies (by OU groups)
-  hosts: "clients"   # example: adjust groups you want to run
+- name: Gather /etc write diagnostics
+  hosts: clients
+  gather_facts: false
   become: true
-  gather_facts: true
 
   tasks:
-    - name: set /etc/motd on workstations
-      when: "'clients_personal' in group_names"
-      ansible.builtin.copy:
-        dest: /etc/motd
-        content: |
-          AWX managed policy applied to {{ inventory_hostname }}
-          Group(s): {{ group_names }}
-        owner: root
-        group: root
-        mode: '0644'
+    - name: whoami and id
+      ansible.builtin.command: id
+      register: id_out
+
+    - name: print whoami
+      ansible.builtin.shell: whoami && echo "BEcome user: $SUDO_USER"
+      register: whoami_out
+      ignore_errors: yes
+
+    - name: stat /etc and /etc/motd
+      ansible.builtin.command: stat -c "%n: mode=%A uid=%u gid=%g" /etc /etc/motd
+      register: stat_out
+      ignore_errors: yes
+
+    - name: ls -ld /etc
+      ansible.builtin.command: ls -ld /etc
+      register: lsld_out
+
+    - name: check mounts
+      ansible.builtin.command: mount | grep " / " || true
+      register: mount_out
+
+    - name: check immutable attributes (lsattr)
+      ansible.builtin.command: lsattr -d /etc || true
+      register: lsattr_out
+      ignore_errors: yes
+
+    - name: check if /etc is symlink
+      ansible.builtin.command: readlink -f /etc || true
+      register: readlink_out
+      ignore_errors: yes
+
+    - name: show SELinux mode
+      ansible.builtin.shell: getenforce || echo "getenforce not found"
+      register: selinux_out
+      ignore_errors: yes
+
+    - name: debug results
+      ansible.builtin.debug:
+        msg:
+          - "{{ id_out.stdout_lines }}"
+          - "{{ whoami_out.stdout_lines | default([]) }}"
+          - "{{ stat_out.stdout_lines | default([]) }}"
+          - "{{ lsld_out.stdout_lines }}"
+          - "{{ mount_out.stdout_lines }}"
+          - "{{ lsattr_out.stdout_lines | default([]) }}"
+          - "{{ readlink_out.stdout_lines | default([]) }}"
+          - "{{ selinux_out.stdout_lines | default([]) }}"
