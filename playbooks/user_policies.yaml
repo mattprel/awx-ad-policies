@@ -10,9 +10,9 @@
         filter: "(objectClass=user)"
         attrs:
           - sAMAccountName
-        server_uri: "{{ ldap_server_uri }}"
-        bind_pw: "{{ ldap_bind_password }}"
-        bind_dn: "{{ ldap_bind_dn }}"
+        server_uri: "{{ lookup('env', 'ldap_server_uri') }}"
+        bind_dn:   "{{ lookup('env', 'ldap_bind_dn') }}"
+        bind_pw:   "{{ lookup('env', 'ldap_bind_password') }}"
       register: personal_users
       delegate_to: localhost
       run_once: true
