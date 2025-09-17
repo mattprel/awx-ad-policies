@@ -3,3 +3,4 @@ pyspnego[kerberos]
 dnspython
 sansldap
 dpapi-ng
+sshpass
