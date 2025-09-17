@@ -11,6 +11,8 @@
         attrs:
           - sAMAccountName
       register: personal_users
+      delegate_to: localhost
+      run_once: true
 
     - name: Debug LDAP search (first 2 entries)
       debug:
